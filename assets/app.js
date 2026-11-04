@@ -77,8 +77,7 @@
   }
 
   /* ---------- 공통 ---------- */
-  // 소식이 하나라도 있을 때만 메뉴에 '소식'을 보여 준다.
-  const navLinks = () => [['series', '/series.html'], ['archive', '/archive.html'], ...(news.length || page === 'news' ? [['news', '/news.html']] : []), ['about', '/about.html'], ['contact', '/contact.html']];
+  const navLinks = () => [['series', '/series.html'], ['archive', '/archive.html'], ['news', '/news.html'], ['about', '/about.html'], ['contact', '/contact.html']];
   function header() {
     const el = $('site-header');
     if (!el) return;
