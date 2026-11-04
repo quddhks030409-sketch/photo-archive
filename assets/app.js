@@ -191,7 +191,7 @@
       if (!g || g.key !== key) { g = { key, c: key >= 0 ? chs[key] : null, items: [] }; groups.push(g); }
       g.items.push({ p, j });
     });
-    const LAYOUTS = ['stack', 'side-left', 'side-right', 'alternate', 'scroll', 'grid'];
+    const LAYOUTS = ['stack', 'feature', 'side-left', 'side-right', 'alternate', 'scroll', 'grid'];
     const layoutOf = (g) => [g.c && g.c.layout, s.layout].find((l) => LAYOUTS.includes(l)) || 'stack';
     const capOf = (p) => pick(p, 'caption');
     const textOf = (p) => pick(p, 'text');
@@ -219,6 +219,14 @@
               ${textOf(x.p) ? `<div class="side-body">${paras(textOf(x.p))}</div>` : ''}
             </div>
           </div>`).join('')}</div>`;
+      } else if (L === 'feature') {
+        // 대표 컷 한 장을 크게, 나머지는 그 아래 가로로 끌어 넘기기
+        const [main, ...rest] = g.items;
+        body = `<div class="lay-feature">
+          <div class="lay-stack">${fig(main, 'photo', true)}</div>
+          ${rest.length ? `<div class="lay-scroll small" data-drag>${rest.map((x) => fig(x, 'scroll')).join('')}</div>
+          <p class="scroll-hint meta">${t('drag')}</p>` : ''}
+        </div>`;
       } else if (L === 'scroll') {
         body = `<div class="lay-scroll" data-drag>${g.items.map((x) => fig(x, 'scroll')).join('')}</div>
           <p class="scroll-hint meta">${t('drag')}</p>`;

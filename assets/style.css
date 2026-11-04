@@ -162,7 +162,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .lay-scroll img { height: min(72vh, 760px); width: auto; max-width: none; }
 .lay-scroll figcaption { margin: 12px 0 0; text-align: left; max-width: 100%; }
 .scroll-hint { text-align: center; margin-top: -24px; }
+/* 배치: 대표 컷 + 아래 가로 넘기기 */
+.lay-feature { display: flex; flex-direction: column; gap: clamp(28px, 4vw, 48px); }
+.lay-feature .scroll-hint { margin-top: -16px; }
+.lay-scroll.small img { height: min(38vh, 380px); }
 @media (max-width: 760px) { .lay-scroll img { height: auto; width: auto; max-width: 82vw; max-height: 62vh; } .lay-scroll figcaption { max-width: 82vw; } }
+@media (max-width: 760px) { .lay-scroll.small img { height: auto; width: auto; max-width: 62vw; max-height: 34vh; } .lay-scroll.small figcaption { max-width: 62vw; } }
 /* 배치 6: 격자로 모아 보기 */
 .lay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: clamp(16px, 2.4vw, 32px); align-items: start; }
 .lay-grid figcaption { margin: 10px 0 0; text-align: left; font-size: 13px; }
@@ -195,9 +200,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .a-title { display: block; font-size: 14px; color: var(--fg); word-break: keep-all; }
 .a-sub { display: block; margin-top: 3px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .masonry figure:hover img { filter: brightness(.88); }
+/* 휴대폰: 왼쪽·오른쪽 높이가 맞도록 같은 비율 칸으로 정렬 */
 @media (max-width: 600px) {
-  .masonry { columns: 2; column-gap: 8px; }
-  .masonry figure { margin-bottom: 8px; }
+  .masonry { columns: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 10px; }
+  .masonry figure { margin-bottom: 0; }
+  .masonry img { aspect-ratio: 4 / 5; object-fit: cover; }
+  .masonry .a-title, .masonry .a-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .masonry .a-title { font-size: 13px; }
 }
 
 /* ---------- About / Contact ---------- */
