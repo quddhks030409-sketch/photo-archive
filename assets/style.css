@@ -34,34 +34,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* ---------- Header ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
-  padding: 14px var(--gut) 0;
-  color: var(--fg);
-  pointer-events: none;
+  background: #fff; color: var(--fg);
+  border-bottom: 1px solid var(--line);
 }
-.home .site-header { position: fixed; left: 0; right: 0; color: #fff; }
 .header-inner {
-  position: relative; isolation: isolate; pointer-events: auto;
   display: flex; align-items: center; justify-content: space-between;
-  max-width: var(--max); margin: 0 auto;
-  height: 60px; padding: 0 clamp(18px, 2.4vw, 32px);
-  transition: color .4s;
+  height: var(--header); padding: 0 var(--gut);
 }
-/* 헤더 네모 상자: 배경과 흐림은 가상 요소에 줘서 모바일 메뉴(고정 위치)가 깨지지 않게 */
-.header-inner::before {
-  content: ''; position: absolute; inset: 0; z-index: -1;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, .86);
-  border: 1px solid rgba(20, 20, 20, .08);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, .05);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
-  transition: background .4s, border-color .4s, box-shadow .4s;
-}
-.home .site-header:not(.scrolled) .header-inner::before {
-  background: rgba(18, 18, 18, .28);
-  border-color: rgba(255, 255, 255, .22);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
-}
-.home .site-header.scrolled { color: var(--fg); }
 .logo { font-weight: 500; font-size: 14px; letter-spacing: .3em; text-transform: uppercase; position: relative; z-index: 2; }
 .nav { display: flex; align-items: center; gap: clamp(20px, 3vw, 40px); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
 .nav a { opacity: .75; transition: opacity .2s; padding: 4px 0; }
@@ -93,12 +72,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; height: 100vh; height: 100svh; min-height: 480px; background: #111; overflow: hidden; }
+.hero { position: relative; height: calc(100vh - var(--header)); height: calc(100svh - var(--header)); min-height: 480px; background: #111; overflow: hidden; }
 .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.8s ease; }
 .hero-slide.on { opacity: 1; }
 .hero-slide img { width: 100%; height: 100%; object-fit: cover; }
 .hero::before, .hero::after { content: ''; position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none; }
-.hero::before { top: 0; height: 160px; background: linear-gradient(rgba(0,0,0,.4), transparent); }
+.hero::before { display: none; }
 .hero::after { bottom: 0; height: 240px; background: linear-gradient(transparent, rgba(0,0,0,.45)); }
 .hero-text { position: absolute; left: var(--gut); right: var(--gut); bottom: clamp(28px, 6vh, 56px); z-index: 2; color: #fff; }
 .hero-tagline { word-break: keep-all; font-family: var(--serif); font-size: clamp(26px, 3.6vw, 46px); line-height: 1.2; font-weight: 400; max-width: 760px; }
@@ -204,14 +183,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .home .site-footer { margin-top: clamp(64px, 8vw, 112px); }
 .footer-inner { max-width: var(--max); margin: 0 auto; padding: clamp(56px, 8vw, 96px) var(--gut) 104px; }
 .footer-mark {
-  display: block; font-family: var(--serif); font-weight: 400;
-  font-size: clamp(52px, 11.5vw, 176px); line-height: .92; letter-spacing: -.015em;
-  color: #fff; word-break: keep-all;
+  display: inline-block; font-family: var(--serif); font-weight: 400;
+  font-size: clamp(30px, 3.4vw, 46px); line-height: 1; letter-spacing: .005em;
+  color: #fff;
 }
-.footer-tag { margin-top: 18px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.footer-tag { margin-top: 12px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.45); }
 .footer-grid {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px;
-  margin-top: clamp(48px, 7vw, 88px); padding-top: 28px;
+  margin-top: clamp(96px, 14vw, 200px); padding-top: 28px;
   border-top: 1px solid rgba(255,255,255,.14);
   font-size: 13px; letter-spacing: .06em;
 }
