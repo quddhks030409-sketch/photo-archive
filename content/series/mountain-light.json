@@ -1,13 +1,4 @@
 {
-  "title_ko": "산의 빛",
-  "title_en": "Mountain Light",
-  "location_ko": "강원도",
-  "location_en": "Gangwon, Korea",
-  "year": "2026",
-  "date": "2026-09-01",
-  "cover": "https://picsum.photos/id/1018/2000/1333",
-  "description_ko": "샘플 시리즈예요. 관리자 페이지에서 지우고 직접 찍은 사진으로 바꿔 주세요.\n\n시리즈마다 짧은 이야기를 적어 두면, 보는 사람이 사진을 더 오래 바라보게 돼요.",
-  "description_en": "This is a sample series. Delete it from the admin page and replace it with your own photographs.",
   "photos": [
     {
       "image": "https://picsum.photos/id/1018/2000/1333",
@@ -30,5 +21,14 @@
       "caption_en": "River"
     }
   ],
-  "draft": false
+  "draft": false,
+  "description_ko": "샘플 시리즈예요. 관리자 페이지에서 지우고 직접 찍은 사진으로 바꿔 주세요.\n\n시리즈마다 짧은 이야기를 적어 두면, 보는 사람이 사진을 더 오래 바라보게 돼요.",
+  "title_ko": "손의 이력",
+  "description_en": "This is a sample series. Delete it from the admin page and replace it with your own photographs.",
+  "location_ko": "대한민국",
+  "date": "2026-10-31",
+  "title_en": "Resume of Hands",
+  "location_en": "Korea",
+  "cover": "/images/uploads/_dsc8660.jpg",
+  "year": "2026"
 }
