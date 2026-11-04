@@ -91,13 +91,24 @@
     const el = $('site-footer');
     if (!el) return;
     const ig = settings.instagram;
+    const name = settings.site_title || 'Kang ByeongWan';
+    const links = [['series', '/series.html'], ['archive', '/archive.html'], ['about', '/about.html'], ['contact', '/contact.html']];
     el.innerHTML = `
       <div class="footer-inner">
-        <span>© ${new Date().getFullYear()} ${esc(settings.site_title || '')}</span>
-        <span class="footer-links">
-          ${settings.email ? `<a href="mailto:${esc(settings.email)}">${esc(settings.email)}</a>` : ''}
-          ${ig ? `<a href="https://instagram.com/${esc(ig.replace(/^@/, ''))}" target="_blank" rel="noopener">Instagram</a>` : ''}
-        </span>
+        <a class="footer-mark" href="/">${esc(name)}</a>
+        <p class="footer-tag">Photography</p>
+        <div class="footer-grid">
+          <div>
+            <span class="meta">${t('contact')}</span>
+            ${settings.email ? `<a href="mailto:${esc(settings.email)}">${esc(settings.email)}</a><br>` : ''}
+            ${ig ? `<a href="https://instagram.com/${esc(ig.replace(/^@/, ''))}" target="_blank" rel="noopener">Instagram</a>` : ''}
+          </div>
+          <nav class="footer-nav">
+            <span class="meta">Menu</span>
+            ${links.map(([k, h]) => `<a href="${h}">${t(k)}</a>`).join('')}
+          </nav>
+          <span class="footer-copy">© ${new Date().getFullYear()} ${esc(name)}. All rights reserved.</span>
+        </div>
       </div>`;
   }
 
@@ -360,6 +371,17 @@
     addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
+
+  // 글자 복사·잘라내기 막기 (입력칸 안에서는 허용)
+  // 연락 페이지 전체와 이메일 주소는 복사할 수 있게 둔다.
+  const elOf = (e) => (e.target && e.target.nodeType === 3 ? e.target.parentElement : e.target);
+  const inField = (e) => page === 'contact' || !!(elOf(e) && elOf(e).closest && elOf(e).closest('input, textarea, select, a[href^="mailto:"]'));
+  ['copy', 'cut'].forEach((ev) => document.addEventListener(ev, (e) => { if (!inField(e)) e.preventDefault(); }));
+  document.addEventListener('selectstart', (e) => { if (!inField(e)) e.preventDefault(); });
+  // 사진 우클릭(이미지 저장) 막기, 끌어서 저장하기 막기
+  const onImg = (e) => e.target && e.target.tagName === 'IMG';
+  document.addEventListener('contextmenu', (e) => { if (onImg(e)) e.preventDefault(); });
+  document.addEventListener('dragstart', (e) => { if (onImg(e)) e.preventDefault(); });
 
   function render() {
     document.documentElement.lang = lang;
