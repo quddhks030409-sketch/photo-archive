@@ -35,7 +35,24 @@
   const pick = (o, f) => (o ? o[`${f}_${lang}`] || o[`${f}_${lang === 'ko' ? 'en' : 'ko'}`] || '' : '');
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const paras = (s) => esc(s).split(/\n\s*\n/).filter((p) => p.trim()).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-  const img = (src, alt, extra = '') => `<img class="fade" src="${esc(src)}" alt="${esc(alt)}" loading="lazy" decoding="async"${extra}>`;
+  // 올린 원본은 그대로 두고, 화면 크기에 맞게 Netlify 이미지 변환(/.netlify/images)으로 줄여서 보여준다.
+  // 내 컴퓨터에서 미리 볼 때와 외부 주소 사진은 원본을 그대로 쓴다.
+  const useCdn = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  const canResize = (src) => useCdn && /^\/[^/]/.test(src || '');
+  const cdn = (src, w) => (canResize(src) ? `/.netlify/images?url=${encodeURIComponent(src)}&w=${w}&q=82` : src);
+  const SIZES = {
+    card: { w: 1200, set: [600, 900, 1200], sizes: '(max-width: 760px) 100vw, 33vw' },
+    photo: { w: 2400, set: [1000, 1600, 2400], sizes: '(max-width: 1240px) 100vw, 1200px' },
+    grid: { w: 800, set: [400, 800, 1200], sizes: '(max-width: 600px) 50vw, 33vw' },
+    portrait: { w: 1200, set: [600, 1200], sizes: '(max-width: 860px) 100vw, 45vw' },
+    hero: { w: 2400, set: [1200, 1800, 2400, 3000], sizes: '100vw' },
+  };
+  const srcAttrs = (src, kind) => {
+    const k = SIZES[kind] || SIZES.photo;
+    if (!canResize(src)) return `src="${esc(src)}"`;
+    return `src="${esc(cdn(src, k.w))}" srcset="${k.set.map((w) => `${esc(cdn(src, w))} ${w}w`).join(', ')}" sizes="${k.sizes}"`;
+  };
+  const img = (src, alt, extra = '', kind = 'photo') => `<img class="fade" ${srcAttrs(src, kind)} alt="${esc(alt)}" loading="lazy" decoding="async"${extra}>`;
   const $ = (id) => document.getElementById(id);
 
   const page = document.body.dataset.page;
@@ -88,7 +105,7 @@
   const seriesMeta = (s) => [pick(s, 'location'), s.year].filter(Boolean).join(' · ');
   const card = (s) => `
     <a class="card" href="/series.html?s=${encodeURIComponent(s.slug)}">
-      <div class="card-img">${cover(s) ? img(cover(s), pick(s, 'title')) : ''}</div>
+      <div class="card-img">${cover(s) ? img(cover(s), pick(s, 'title'), '', 'card') : ''}</div>
       <h3>${esc(pick(s, 'title'))}</h3>
       <p class="meta">${esc([seriesMeta(s), s.photos.length + t('photos')].filter(Boolean).join(' · '))}</p>
     </a>`;
@@ -101,7 +118,7 @@
     if (!slides.length) slides = series.filter(cover).map((s) => ({ image: cover(s), caption_ko: s.title_ko, caption_en: s.title_en }));
     clearInterval(heroTimer);
     hero.innerHTML = slides.map((s, i) => `
-        <div class="hero-slide${i === 0 ? ' on' : ''}"><img src="${esc(s.image)}" alt="${esc(pick(s, 'caption'))}"${i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'}></div>`).join('') + `
+        <div class="hero-slide${i === 0 ? ' on' : ''}"><img ${srcAttrs(s.image, 'hero')} alt="${esc(pick(s, 'caption'))}"${i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'}></div>`).join('') + `
       <div class="hero-text">
         <p class="hero-tagline">${esc(pick(settings, 'tagline'))}</p>
         <p class="hero-caption"></p>
@@ -183,7 +200,7 @@
           ${series.map((s) => `<button data-filter="${esc(s.slug)}" class="${archiveFilter === s.slug ? 'on' : ''}">${esc(pick(s, 'title'))}</button>`).join('')}
         </div>` : ''}
         <div class="masonry">
-          ${list.map(({ p, s }, j) => `<figure>${img(p.image, pick(p, 'caption') || pick(s, 'title'), ` data-lb="${j}"`)}</figure>`).join('')}
+          ${list.map(({ p, s }, j) => `<figure>${img(p.image, pick(p, 'caption') || pick(s, 'title'), ` data-lb="${j}"`, 'grid')}</figure>`).join('')}
         </div>
         ${list.length ? '' : empty()}
       </div></section>`;
@@ -195,7 +212,7 @@
     document.title = `${t('about')} — ${settings.site_title || ''}`;
     $('main').innerHTML = `
       <section class="section"><div class="wrap split">
-        ${settings.about_image ? `<div class="portrait">${img(settings.about_image, settings.site_title || '')}</div>` : '<div></div>'}
+        ${settings.about_image ? `<div class="portrait">${img(settings.about_image, settings.site_title || '', '', 'portrait')}</div>` : '<div></div>'}
         <div>
           <h1 class="page-title">${t('about')}</h1>
           <div class="prose">${paras(pick(settings, 'about'))}</div>
@@ -265,7 +282,7 @@
     lbIndex = (n + lbItems.length) % lbItems.length;
     const it = lbItems[lbIndex];
     const im = lb.querySelector('img');
-    im.src = it.src;
+    im.src = cdn(it.src, 2400);
     im.alt = it.cap || it.sub || '';
     lb.querySelector('.lb-cap').textContent = it.cap || '';
     const sub = lb.querySelector('.lb-sub');
