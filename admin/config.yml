@@ -42,6 +42,7 @@ collections:
       - { label: "대표 사진 (비우면 첫 번째 사진)", name: cover, widget: image, required: false }
       - { label: "설명 (한국어)", name: description_ko, widget: text, required: false }
       - { label: "설명 (영어)", name: description_en, widget: text, required: false }
+      - { label: "사진 배치 방식", name: layout, widget: select, default: "stack", required: false, hint: "시리즈 전체에 쓰여요. 소주제마다 따로 고를 수도 있어요.", options: [{ label: "세로로 크게 쌓기 (기본)", value: "stack" }, { label: "사진 왼쪽 · 설명 오른쪽", value: "side-left" }, { label: "사진 오른쪽 · 설명 왼쪽", value: "side-right" }, { label: "사진 좌우 번갈아 · 옆에 설명", value: "alternate" }, { label: "옆으로 넘겨 보기 (가로로 끌기)", value: "scroll" }, { label: "격자로 모아 보기", value: "grid" }] }
       - label: "소주제 (시리즈 안을 나누고 싶을 때)"
         name: chapters
         widget: list
@@ -58,6 +59,7 @@ collections:
           - { label: "부제 (영어) — 예: Seoul, October 2026", name: note_en, widget: string, required: false }
           - { label: "설명 (한국어)", name: description_ko, widget: text, required: false }
           - { label: "설명 (영어)", name: description_en, widget: text, required: false }
+          - { label: "이 소주제의 사진 배치 방식", name: layout, widget: select, default: "inherit", required: false, options: [{ label: "시리즈 설정 따르기", value: "inherit" }, { label: "세로로 크게 쌓기 (기본)", value: "stack" }, { label: "사진 왼쪽 · 설명 오른쪽", value: "side-left" }, { label: "사진 오른쪽 · 설명 왼쪽", value: "side-right" }, { label: "사진 좌우 번갈아 · 옆에 설명", value: "alternate" }, { label: "옆으로 넘겨 보기 (가로로 끌기)", value: "scroll" }, { label: "격자로 모아 보기", value: "grid" }] }
           - label: "사진"
             name: photos
             widget: list
@@ -69,6 +71,8 @@ collections:
               - { label: "사진", name: image, widget: image }
               - { label: "캡션 (한국어)", name: caption_ko, widget: string, required: false }
               - { label: "캡션 (영어)", name: caption_en, widget: string, required: false }
+              - { label: "사진 옆 설명 (한국어) — '옆 설명' 배치나 세로 쌓기에서 캡션 아래에 나와요", name: text_ko, widget: text, required: false }
+              - { label: "사진 옆 설명 (영어)", name: text_en, widget: text, required: false }
       - label: "사진 (소주제 없이 쓰는 시리즈일 때만)"
         name: photos
         widget: list
@@ -82,6 +86,8 @@ collections:
           - { label: "사진", name: image, widget: image }
           - { label: "캡션 (한국어)", name: caption_ko, widget: string, required: false }
           - { label: "캡션 (영어)", name: caption_en, widget: string, required: false }
+          - { label: "사진 옆 설명 (한국어) — '옆 설명' 배치나 세로 쌓기에서 캡션 아래에 나와요", name: text_ko, widget: text, required: false }
+          - { label: "사진 옆 설명 (영어)", name: text_en, widget: text, required: false }
       - { label: "숨기기 (체크하면 사이트에 안 보여요)", name: draft, widget: boolean, default: false, required: false }
 
   - name: settings
