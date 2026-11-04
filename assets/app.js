@@ -4,7 +4,9 @@
   // UI 문구 (사진 제목·설명은 관리자 페이지에서 한/영으로 따로 입력)
   const T = {
     ko: {
-      series: '시리즈', archive: '아카이브', about: '소개', contact: '연락',
+      series: '시리즈', archive: '아카이브', news: '소식', about: '소개', contact: '연락',
+      newsBack: '← 모든 소식', newsEmpty: '아직 올린 소식이 없어요.', readMore: '원문 보러 가기', more: '자세히 보기',
+      cat: { award: '수상', exhibition: '전시', press: '기사 · 인터뷰', publication: '출판', news: '소식' },
       latest: '시리즈', all: '전체', photos: '장', back: '← 모든 시리즈',
       prev: '이전 시리즈', next: '다음 시리즈',
       drag: '← 옆으로 넘겨 보세요 →', empty: '아직 올린 사진이 없어요.', notFound: '시리즈를 찾을 수 없어요.',
@@ -14,7 +16,9 @@
       failed: '전송에 실패했어요. 이메일로 직접 연락해 주세요.',
     },
     en: {
-      series: 'Series', archive: 'Archive', about: 'About', contact: 'Contact',
+      series: 'Series', archive: 'Archive', news: 'News', about: 'About', contact: 'Contact',
+      newsBack: '← All news', newsEmpty: 'No news yet.', readMore: 'Read the original', more: 'Read more',
+      cat: { award: 'Award', exhibition: 'Exhibition', press: 'Press', publication: 'Publication', news: 'News' },
       latest: 'Series', all: 'All', photos: ' photos', back: '← All series',
       prev: 'Previous', next: 'Next',
       drag: '← Drag to explore →', empty: 'No photographs yet.', notFound: 'Series not found.',
@@ -60,6 +64,7 @@
   const page = document.body.dataset.page;
   let settings = {};
   let series = [];
+  let news = [];
   let heroTimer = null;
   let archiveFilter = new URLSearchParams(location.search).get('s') || 'all';
 
@@ -68,13 +73,16 @@
     const [s, idx] = await Promise.all([get('/content/settings.json'), get('/content/index.json')]);
     settings = s || {};
     series = ((idx && idx.series) || []).map((x) => ({ ...x, photos: x.photos || [] }));
+    news = (idx && idx.news) || [];
   }
 
   /* ---------- 공통 ---------- */
+  // 소식이 하나라도 있을 때만 메뉴에 '소식'을 보여 준다.
+  const navLinks = () => [['series', '/series.html'], ['archive', '/archive.html'], ...(news.length || page === 'news' ? [['news', '/news.html']] : []), ['about', '/about.html'], ['contact', '/contact.html']];
   function header() {
     const el = $('site-header');
     if (!el) return;
-    const links = [['series', '/series.html'], ['archive', '/archive.html'], ['about', '/about.html'], ['contact', '/contact.html']];
+    const links = navLinks();
     el.innerHTML = `
       <div class="header-inner">
         <a class="logo" href="/">${esc(settings.site_title || 'Kang ByeongWan')}</a>
@@ -94,7 +102,7 @@
     if (!el) return;
     const ig = settings.instagram;
     const name = settings.site_title || 'Kang ByeongWan';
-    const links = [['series', '/series.html'], ['archive', '/archive.html'], ['about', '/about.html'], ['contact', '/contact.html']];
+    const links = navLinks();
     el.innerHTML = `
       <div class="footer-inner">
         <a class="footer-mark" href="/">${esc(name)}</a>
@@ -266,6 +274,57 @@
         ${list.length ? '' : empty()}
       </div></section>`;
     lbItems = list.map(({ p, s }) => ({ src: p.image, cap: pick(p, 'caption'), sub: pick(s, 'title'), href: `/series.html?s=${encodeURIComponent(s.slug)}` }));
+  }
+
+  /* ---------- 소식 ---------- */
+  const newsDate = (d) => String(d || '').slice(0, 10).replace(/-/g, '.');
+  const catLabel = (c) => (T[lang].cat || {})[c] || (T[lang].cat || {}).news;
+  const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
+  function newsPage() {
+    const main = $('main');
+    const slug = new URLSearchParams(location.search).get('n');
+    if (slug) {
+      const n = news.find((x) => x.slug === slug);
+      if (!n) { main.innerHTML = `<section class="series-head"><a class="back" href="/news.html">${t('newsBack')}</a><p class="empty">${t('newsEmpty')}</p></section>`; return; }
+      const link = safeUrl(n.link);
+      document.title = `${pick(n, 'title')} — ${settings.site_title || ''}`;
+      main.innerHTML = `
+        <article class="news-article">
+          <a class="back" href="/news.html">${t('newsBack')}</a>
+          <p class="meta">${esc(catLabel(n.category))} · ${esc(newsDate(n.date))}</p>
+          <h1>${esc(pick(n, 'title'))}</h1>
+          ${pick(n, 'summary') ? `<p class="news-lead">${esc(pick(n, 'summary'))}</p>` : ''}
+          ${n.image ? `<figure class="news-figure">${img(n.image, pick(n, 'title'), ' data-lb="0"', 'photo')}</figure>` : ''}
+          ${pick(n, 'body') ? `<div class="news-body">${paras(pick(n, 'body'))}</div>` : ''}
+          ${link ? `<div class="news-btns"><a class="news-btn line" href="${esc(link)}" target="_blank" rel="noopener">${t('readMore')} ↗</a></div>` : ''}
+        </article>`;
+      lbItems = n.image ? [{ src: n.image, cap: pick(n, 'title'), sub: catLabel(n.category) }] : [];
+      return;
+    }
+    document.title = `${t('news')} — ${settings.site_title || ''}`;
+    main.innerHTML = `
+      <section class="section"><div class="wrap">
+        <h1 class="page-title">${t('news')}</h1>
+        <div class="news-list">
+          ${news.map((n) => {
+            const link = safeUrl(n.link);
+            const href = `/news.html?n=${encodeURIComponent(n.slug)}`;
+            return `
+            <article class="news-item${n.image ? '' : ' no-img'}">
+              <div class="news-when"><span>${esc(newsDate(n.date))}</span><span class="meta">${esc(catLabel(n.category))}</span></div>
+              <div class="news-text">
+                <h2><a href="${href}">${esc(pick(n, 'title'))}</a></h2>
+                ${pick(n, 'summary') ? `<p>${esc(pick(n, 'summary'))}</p>` : ''}
+                <div class="news-btns">
+                  <a class="news-btn" href="${href}">${t('more')} →</a>
+                  ${link ? `<a class="news-btn line" href="${esc(link)}" target="_blank" rel="noopener">${t('readMore')} ↗</a>` : ''}
+                </div>
+              </div>
+              ${n.image ? `<a class="news-thumb" href="${href}" tabindex="-1">${img(n.image, pick(n, 'title'), '', 'card')}</a>` : ''}
+            </article>`;
+          }).join('') || `<p class="empty">${t('newsEmpty')}</p>`}
+        </div>
+      </div></section>`;
   }
 
   /* ---------- 소개 ---------- */
@@ -455,6 +514,7 @@
     if (page === 'home') home();
     else if (page === 'series') seriesPage();
     else if (page === 'archive') archive();
+    else if (page === 'news') newsPage();
     else if (page === 'about') about();
     else if (page === 'contact') contact();
     markLoaded();
