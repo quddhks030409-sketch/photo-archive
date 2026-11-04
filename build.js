@@ -20,5 +20,12 @@ const series = files
   .filter((s) => !s.draft)
   .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-fs.writeFileSync(path.join(__dirname, 'content', 'index.json'), JSON.stringify({ series }, null, 2));
-console.log(`Built content/index.json: ${series.length} series, ${series.reduce((n, s) => n + s.photos.length, 0)} photos`);
+// 소식(News): content/news/*.json 을 모아 최신 날짜순으로
+const newsDir = path.join(__dirname, 'content', 'news');
+const news = (fs.existsSync(newsDir) ? fs.readdirSync(newsDir).filter((f) => f.endsWith('.json')) : [])
+  .map((f) => ({ slug: f.replace(/\.json$/, ''), ...JSON.parse(fs.readFileSync(path.join(newsDir, f), 'utf8')) }))
+  .filter((n) => !n.draft && (n.title_ko || n.title_en))
+  .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+fs.writeFileSync(path.join(__dirname, 'content', 'index.json'), JSON.stringify({ series, news }, null, 2));
+console.log(`Built content/index.json: ${series.length} series, ${series.reduce((n, s) => n + s.photos.length, 0)} photos, ${news.length} news`);
