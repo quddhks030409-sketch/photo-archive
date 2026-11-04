@@ -8,7 +8,14 @@ const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(
 const series = files
   .map((f) => {
     const data = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-    return { slug: f.replace(/\.json$/, ''), ...data, photos: (data.photos || []).filter((p) => p && p.image) };
+    const ok = (list) => (list || []).filter((p) => p && p.image);
+    // 소주제(chapters)의 사진도 photos 하나로 이어 붙이고, 어느 소주제인지 표시해 둔다.
+    const chapters = (data.chapters || []).filter((c) => c && (c.title_ko || c.title_en));
+    const photos = [
+      ...ok(data.photos),
+      ...chapters.flatMap((c, ci) => ok(c.photos).map((p) => ({ ...p, chapter: ci }))),
+    ];
+    return { slug: f.replace(/\.json$/, ''), ...data, chapters: chapters.map(({ photos: _, ...c }) => c), photos };
   })
   .filter((s) => !s.draft)
   .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
