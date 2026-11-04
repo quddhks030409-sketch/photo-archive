@@ -7,7 +7,7 @@
       series: '시리즈', archive: '아카이브', about: '소개', contact: '연락',
       latest: '시리즈', all: '전체', photos: '장', back: '← 모든 시리즈',
       prev: '이전 시리즈', next: '다음 시리즈',
-      empty: '아직 올린 사진이 없어요.', notFound: '시리즈를 찾을 수 없어요.',
+      drag: '← 옆으로 넘겨 보세요 →', empty: '아직 올린 사진이 없어요.', notFound: '시리즈를 찾을 수 없어요.',
       email: '이메일', instagram: '인스타그램',
       name: '이름', subject: '제목', message: '메시지', send: '보내기',
       sending: '보내는 중…', sent: '메시지가 전달되었어요. 확인 후 답장드릴게요.',
@@ -17,7 +17,7 @@
       series: 'Series', archive: 'Archive', about: 'About', contact: 'Contact',
       latest: 'Series', all: 'All', photos: ' photos', back: '← All series',
       prev: 'Previous', next: 'Next',
-      empty: 'No photographs yet.', notFound: 'Series not found.',
+      drag: '← Drag to explore →', empty: 'No photographs yet.', notFound: 'Series not found.',
       email: 'Email', instagram: 'Instagram',
       name: 'Name', subject: 'Subject', message: 'Message', send: 'Send',
       sending: 'Sending…', sent: 'Thank you — your message has been sent.',
@@ -46,6 +46,8 @@
     grid: { w: 800, set: [400, 800, 1200], sizes: '(max-width: 600px) 50vw, 33vw' },
     portrait: { w: 1200, set: [600, 1200], sizes: '(max-width: 860px) 100vw, 45vw' },
     hero: { w: 2400, set: [1200, 1800, 2400, 3000], sizes: '100vw' },
+    side: { w: 1800, set: [800, 1200, 1800], sizes: '(max-width: 860px) 100vw, 60vw' },
+    scroll: { w: 1600, set: [800, 1200, 1600], sizes: '(max-width: 760px) 85vw, 55vw' },
   };
   const srcAttrs = (src, kind) => {
     const k = SIZES[kind] || SIZES.photo;
@@ -174,6 +176,52 @@
     const prev = series[i - 1];
     const next = series[i + 1];
     const chs = s.chapters || [];
+    // 사진을 소주제별 묶음으로 나누고, 묶음마다 배치 방식을 정한다.
+    const groups = [];
+    s.photos.forEach((p, j) => {
+      const key = p.chapter != null ? p.chapter : -1;
+      let g = groups[groups.length - 1];
+      if (!g || g.key !== key) { g = { key, c: key >= 0 ? chs[key] : null, items: [] }; groups.push(g); }
+      g.items.push({ p, j });
+    });
+    const LAYOUTS = ['stack', 'side-left', 'side-right', 'alternate', 'scroll', 'grid'];
+    const layoutOf = (g) => [g.c && g.c.layout, s.layout].find((l) => LAYOUTS.includes(l)) || 'stack';
+    const capOf = (p) => pick(p, 'caption');
+    const textOf = (p) => pick(p, 'text');
+    const pic = ({ p, j }, kind) => img(p.image, capOf(p) || title, ` data-lb="${j}"`, kind);
+    const fig = (x, kind, withText) => `
+          <figure>
+            ${pic(x, kind)}
+            ${capOf(x.p) || (withText && textOf(x.p)) ? `<figcaption>${esc(capOf(x.p))}${withText && textOf(x.p) ? `<span class="fig-text">${paras(textOf(x.p))}</span>` : ''}</figcaption>` : ''}
+          </figure>`;
+    const block = (g) => {
+      const L = layoutOf(g);
+      const head = g.c ? `
+          <header class="chapter-head" id="ch-${g.key}">
+            <h2>${esc(pick(g.c, 'title'))}</h2>
+            ${pick(g.c, 'note') ? `<p class="meta">${esc(pick(g.c, 'note'))}</p>` : ''}
+            ${pick(g.c, 'description') ? `<div class="lead">${paras(pick(g.c, 'description'))}</div>` : ''}
+          </header>` : '';
+      let body;
+      if (L === 'side-left' || L === 'side-right' || L === 'alternate') {
+        body = `<div class="lay-side ${L}">${g.items.map((x) => `
+          <div class="side-row">
+            <div class="side-img">${pic(x, 'side')}</div>
+            <div class="side-text">
+              ${capOf(x.p) ? `<h3>${esc(capOf(x.p))}</h3>` : ''}
+              ${textOf(x.p) ? `<div class="side-body">${paras(textOf(x.p))}</div>` : ''}
+            </div>
+          </div>`).join('')}</div>`;
+      } else if (L === 'scroll') {
+        body = `<div class="lay-scroll" data-drag>${g.items.map((x) => fig(x, 'scroll')).join('')}</div>
+          <p class="scroll-hint meta">${t('drag')}</p>`;
+      } else if (L === 'grid') {
+        body = `<div class="lay-grid">${g.items.map((x) => fig(x, 'grid')).join('')}</div>`;
+      } else {
+        body = `<div class="lay-stack">${g.items.map((x) => fig(x, 'photo', true)).join('')}</div>`;
+      }
+      return `<section class="photo-block">${head}${body}</section>`;
+    };
     document.title = `${title} — ${settings.site_title || ''}`;
     main.innerHTML = `
       <header class="series-head">
@@ -183,21 +231,7 @@
         ${pick(s, 'description') ? `<div class="lead">${paras(pick(s, 'description'))}</div>` : ''}
       </header>
       ${chs.length > 1 ? `<nav class="chapter-toc">${chs.map((c, ci) => (s.photos.some((p) => p.chapter === ci) ? `<a href="#ch-${ci}">${esc(pick(c, 'title'))}</a>` : '')).join('')}</nav>` : ''}
-      <div class="photos">
-        ${s.photos.map((p, j) => {
-          const c = p.chapter != null && p.chapter !== (s.photos[j - 1] || {}).chapter ? chs[p.chapter] : null;
-          return `${c ? `
-          <header class="chapter-head" id="ch-${p.chapter}">
-            <h2>${esc(pick(c, 'title'))}</h2>
-            ${pick(c, 'note') ? `<p class="meta">${esc(pick(c, 'note'))}</p>` : ''}
-            ${pick(c, 'description') ? `<div class="lead">${paras(pick(c, 'description'))}</div>` : ''}
-          </header>` : ''}
-          <figure>
-            ${img(p.image, pick(p, 'caption') || title, ` data-lb="${j}"`)}
-            ${pick(p, 'caption') ? `<figcaption>${esc(pick(p, 'caption'))}</figcaption>` : ''}
-          </figure>`;
-        }).join('') || empty()}
-      </div>
+      <div class="photos">${groups.map(block).join('') || empty()}</div>
       <nav class="series-nav">
         ${prev ? `<a href="/series.html?s=${encodeURIComponent(prev.slug)}"><span class="meta">← ${t('prev')}</span><strong>${esc(pick(prev, 'title'))}</strong></a>` : ''}
         ${next ? `<a href="/series.html?s=${encodeURIComponent(next.slug)}"><span class="meta">${t('next')} →</span><strong>${esc(pick(next, 'title'))}</strong></a>` : ''}
@@ -222,7 +256,12 @@
           ${series.map((s) => `<button data-filter="${esc(s.slug)}" class="${archiveFilter === s.slug ? 'on' : ''}">${esc(pick(s, 'title'))}</button>`).join('')}
         </div>` : ''}
         <div class="masonry">
-          ${list.map(({ p, s }, j) => `<figure>${img(p.image, pick(p, 'caption') || pick(s, 'title'), ` data-lb="${j}"`, 'grid')}</figure>`).join('')}
+          ${list.map(({ p, s }, j) => {
+            const ch = p.chapter != null && s.chapters && s.chapters[p.chapter] ? pick(s.chapters[p.chapter], 'title') : '';
+            const name = pick(p, 'caption') || ch || pick(s, 'title');
+            const sub = [pick(s, 'title'), ch].filter((x) => x && x !== name).join(' · ');
+            return `<figure>${img(p.image, name, ` data-lb="${j}"`, 'grid')}<figcaption><span class="a-title">${esc(name)}</span>${sub ? `<span class="a-sub">${esc(sub)}</span>` : ''}</figcaption></figure>`;
+          }).join('')}
         </div>
         ${list.length ? '' : empty()}
       </div></section>`;
@@ -382,6 +421,31 @@
   const onImg = (e) => e.target && e.target.tagName === 'IMG';
   document.addEventListener('contextmenu', (e) => { if (onImg(e)) e.preventDefault(); });
   document.addEventListener('dragstart', (e) => { if (onImg(e)) e.preventDefault(); });
+
+  // 가로 스크롤 묶음: 마우스로 끌어서 넘기기 (터치는 기본 스크롤)
+  let drag = null;
+  document.addEventListener('pointerdown', (e) => {
+    const el = e.pointerType === 'mouse' && e.target.closest && e.target.closest('[data-drag]');
+    if (!el) return;
+    drag = { el, x: e.clientX, left: el.scrollLeft, moved: false };
+    el.classList.add('dragging');
+  });
+  addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 5) drag.moved = true;
+    drag.el.scrollLeft = drag.left - dx;
+  });
+  let justDragged = false;
+  addEventListener('pointerup', () => {
+    if (!drag) return;
+    drag.el.classList.remove('dragging');
+    justDragged = drag.moved;
+    drag = null;
+    setTimeout(() => { justDragged = false; }, 60);
+  });
+  // 끌어서 넘긴 직후의 클릭은 사진 크게 보기를 열지 않게
+  document.addEventListener('click', (e) => { if (justDragged) { e.stopPropagation(); e.preventDefault(); justDragged = false; } }, true);
 
   function render() {
     document.documentElement.lang = lang;
