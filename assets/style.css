@@ -34,19 +34,34 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* ---------- Header ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(255, 255, 255, .96);
-  border-bottom: 1px solid var(--line);
-  transition: background .4s, color .4s, border-color .4s;
+  padding: 14px var(--gut) 0;
+  color: var(--fg);
+  pointer-events: none;
 }
-.home .site-header {
-  position: fixed; left: 0; right: 0;
-  background: transparent; color: #fff; border-color: transparent;
-}
-.home .site-header.scrolled { background: rgba(255, 255, 255, .96); color: var(--fg); border-color: var(--line); }
+.home .site-header { position: fixed; left: 0; right: 0; color: #fff; }
 .header-inner {
+  position: relative; isolation: isolate; pointer-events: auto;
   display: flex; align-items: center; justify-content: space-between;
-  height: var(--header); padding: 0 var(--gut);
+  max-width: var(--max); margin: 0 auto;
+  height: 60px; padding: 0 clamp(18px, 2.4vw, 32px);
+  transition: color .4s;
 }
+/* 헤더 네모 상자: 배경과 흐림은 가상 요소에 줘서 모바일 메뉴(고정 위치)가 깨지지 않게 */
+.header-inner::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .86);
+  border: 1px solid rgba(20, 20, 20, .08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+  transition: background .4s, border-color .4s, box-shadow .4s;
+}
+.home .site-header:not(.scrolled) .header-inner::before {
+  background: rgba(18, 18, 18, .28);
+  border-color: rgba(255, 255, 255, .22);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+}
+.home .site-header.scrolled { color: var(--fg); }
 .logo { font-weight: 500; font-size: 14px; letter-spacing: .3em; text-transform: uppercase; position: relative; z-index: 2; }
 .nav { display: flex; align-items: center; gap: clamp(20px, 3vw, 40px); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
 .nav a { opacity: .75; transition: opacity .2s; padding: 4px 0; }
@@ -86,7 +101,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .hero::before { top: 0; height: 160px; background: linear-gradient(rgba(0,0,0,.4), transparent); }
 .hero::after { bottom: 0; height: 240px; background: linear-gradient(transparent, rgba(0,0,0,.45)); }
 .hero-text { position: absolute; left: var(--gut); right: var(--gut); bottom: clamp(28px, 6vh, 56px); z-index: 2; color: #fff; }
-.hero-tagline { font-family: var(--serif); font-size: clamp(26px, 3.6vw, 46px); line-height: 1.2; font-weight: 400; max-width: 760px; }
+.hero-tagline { word-break: keep-all; font-family: var(--serif); font-size: clamp(26px, 3.6vw, 46px); line-height: 1.2; font-weight: 400; max-width: 760px; }
 .hero-caption { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; opacity: .8; margin-top: 14px; min-height: 1.75em; }
 .hero-dots { position: absolute; right: var(--gut); bottom: clamp(32px, 6vh, 60px); z-index: 2; display: flex; gap: 10px; }
 .hero-dots button { width: 22px; height: 16px; position: relative; }
@@ -181,11 +196,34 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .form-status { font-size: 14px; min-height: 1.75em; }
 
 /* ---------- Footer ---------- */
-.site-footer { border-top: 1px solid var(--line); margin-top: clamp(64px, 10vw, 128px); }
-.home .site-footer { margin-top: 0; }
-.footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; padding: 32px var(--gut); font-size: 12px; letter-spacing: .1em; color: var(--muted); }
-.footer-inner a:hover { color: var(--fg); }
-.footer-links { display: flex; gap: 24px; }
+.site-footer {
+  margin-top: clamp(80px, 12vw, 160px);
+  background: #111; color: #f2f2f0;
+  -webkit-font-smoothing: antialiased;
+}
+.home .site-footer { margin-top: clamp(64px, 8vw, 112px); }
+.footer-inner { max-width: var(--max); margin: 0 auto; padding: clamp(56px, 8vw, 96px) var(--gut) 104px; }
+.footer-mark {
+  display: block; font-family: var(--serif); font-weight: 400;
+  font-size: clamp(52px, 11.5vw, 176px); line-height: .92; letter-spacing: -.015em;
+  color: #fff; word-break: keep-all;
+}
+.footer-tag { margin-top: 18px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.footer-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px;
+  margin-top: clamp(48px, 7vw, 88px); padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,.14);
+  font-size: 13px; letter-spacing: .06em;
+}
+.footer-grid .meta { display: block; margin-bottom: 10px; color: rgba(255,255,255,.45); font-size: 11px; }
+.footer-grid a { display: inline-block; color: rgba(255,255,255,.85); transition: color .2s; }
+.footer-grid a:hover { color: #fff; }
+.footer-nav { display: flex; flex-direction: column; gap: 4px; }
+.footer-copy { color: rgba(255,255,255,.45); font-size: 12px; align-self: end; }
+@media (max-width: 760px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-copy { grid-column: 1 / -1; }
+}
 
 /* ---------- Lightbox ---------- */
 .lb { position: fixed; inset: 0; z-index: 100; background: rgba(10, 10, 10, .97); color: #fff; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
@@ -206,3 +244,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; }
 }
+
+/* 글자 드래그·복사 막기 (연락 양식 입력칸은 그대로 쓸 수 있게) */
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, select, body[data-page="contact"], body[data-page="contact"] *, a[href^="mailto:"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+/* 사진은 드래그·길게 눌러 저장하기 막기 */
+img { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; }
