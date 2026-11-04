@@ -162,6 +162,7 @@
     const title = pick(s, 'title');
     const prev = series[i - 1];
     const next = series[i + 1];
+    const chs = s.chapters || [];
     document.title = `${title} — ${settings.site_title || ''}`;
     main.innerHTML = `
       <header class="series-head">
@@ -170,18 +171,28 @@
         <p class="meta">${esc(seriesMeta(s))}</p>
         ${pick(s, 'description') ? `<div class="lead">${paras(pick(s, 'description'))}</div>` : ''}
       </header>
+      ${chs.length > 1 ? `<nav class="chapter-toc">${chs.map((c, ci) => (s.photos.some((p) => p.chapter === ci) ? `<a href="#ch-${ci}">${esc(pick(c, 'title'))}</a>` : '')).join('')}</nav>` : ''}
       <div class="photos">
-        ${s.photos.map((p, j) => `
+        ${s.photos.map((p, j) => {
+          const c = p.chapter != null && p.chapter !== (s.photos[j - 1] || {}).chapter ? chs[p.chapter] : null;
+          return `${c ? `
+          <header class="chapter-head" id="ch-${p.chapter}">
+            <h2>${esc(pick(c, 'title'))}</h2>
+            ${pick(c, 'note') ? `<p class="meta">${esc(pick(c, 'note'))}</p>` : ''}
+            ${pick(c, 'description') ? `<div class="lead">${paras(pick(c, 'description'))}</div>` : ''}
+          </header>` : ''}
           <figure>
             ${img(p.image, pick(p, 'caption') || title, ` data-lb="${j}"`)}
             ${pick(p, 'caption') ? `<figcaption>${esc(pick(p, 'caption'))}</figcaption>` : ''}
-          </figure>`).join('') || empty()}
+          </figure>`;
+        }).join('') || empty()}
       </div>
       <nav class="series-nav">
         ${prev ? `<a href="/series.html?s=${encodeURIComponent(prev.slug)}"><span class="meta">← ${t('prev')}</span><strong>${esc(pick(prev, 'title'))}</strong></a>` : ''}
         ${next ? `<a href="/series.html?s=${encodeURIComponent(next.slug)}"><span class="meta">${t('next')} →</span><strong>${esc(pick(next, 'title'))}</strong></a>` : ''}
       </nav>`;
-    lbItems = s.photos.map((p) => ({ src: p.image, cap: pick(p, 'caption'), sub: title }));
+    const sub = (p) => [title, p.chapter != null && chs[p.chapter] ? pick(chs[p.chapter], 'title') : ''].filter(Boolean).join(' · ');
+    lbItems = s.photos.map((p) => ({ src: p.image, cap: pick(p, 'caption'), sub: sub(p) }));
   }
 
   /* ---------- 아카이브 ---------- */

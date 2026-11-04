@@ -123,6 +123,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .photos { max-width: 1240px; margin: 0 auto; padding: 0 var(--gut); display: flex; flex-direction: column; gap: clamp(56px, 9vw, 120px); }
 .photos figure img { max-height: 88vh; width: auto; margin: 0 auto; cursor: zoom-in; background: var(--soft); }
 .photos figcaption { max-width: 680px; margin: 18px auto 0; text-align: center; font-size: 14px; color: var(--muted); }
+.chapter-toc { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; max-width: 780px; margin: calc(-1 * clamp(16px, 3vw, 40px)) auto clamp(56px, 8vw, 96px); padding: 0 var(--gut); font-size: 13px; letter-spacing: .06em; color: var(--muted); }
+.chapter-toc a { border-bottom: 1px solid transparent; padding-bottom: 2px; }
+.chapter-toc a:hover { color: var(--fg); border-color: var(--fg); }
+.chapter-head { max-width: 680px; margin: clamp(24px, 5vw, 64px) auto 0; text-align: center; scroll-margin-top: 100px; }
+.photos > .chapter-head:first-child { margin-top: 0; }
+.chapter-head h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3.8vw, 44px); line-height: 1.15; word-break: keep-all; }
+.chapter-head .meta { margin-top: 12px; }
+.chapter-head .lead { margin-top: 20px; }
 .series-nav { display: flex; justify-content: space-between; gap: 24px; max-width: var(--max); margin: clamp(80px, 12vw, 160px) auto 0; padding: 40px var(--gut); border-top: 1px solid var(--line); }
 .series-nav a { display: block; max-width: 45%; }
 .series-nav a:last-child { text-align: right; margin-left: auto; }
