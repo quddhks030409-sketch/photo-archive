@@ -1,0 +1,82 @@
+# 사진 관리자 페이지 설정 (Decap CMS)
+# 배포 전에 아래 repo 를 본인 GitHub 저장소 이름으로 바꿔 주세요. 예: kangbyeongwan/photo-archive
+backend:
+  name: github
+  repo: quddhks030409-sketch/photo-archive
+  branch: main
+  commit_messages:
+    create: "추가: {{slug}}"
+    update: "수정: {{slug}}"
+    delete: "삭제: {{slug}}"
+    uploadMedia: "사진 업로드: {{path}}"
+    deleteMedia: "사진 삭제: {{path}}"
+
+locale: ko
+media_folder: images/uploads
+public_folder: /images/uploads
+slug:
+  encoding: ascii
+  clean_accents: true
+
+collections:
+  - name: series
+    label: 시리즈
+    label_singular: 시리즈
+    description: 사진 시리즈(프로젝트)를 만들고 사진을 올리거나 지울 수 있어요. 변경 사항은 저장 후 1분 정도 뒤에 사이트에 반영돼요.
+    folder: content/series
+    create: true
+    delete: true
+    extension: json
+    format: json
+    identifier_field: title_en
+    slug: "{{slug}}"
+    summary: "{{title_ko}} / {{title_en}} — {{year}}"
+    sortable_fields: [date, title_en]
+    fields:
+      - { label: "제목 (한국어)", name: title_ko, widget: string }
+      - { label: "제목 (영어) — 주소에도 쓰여요", name: title_en, widget: string }
+      - { label: "장소 (한국어)", name: location_ko, widget: string, required: false }
+      - { label: "장소 (영어)", name: location_en, widget: string, required: false }
+      - { label: "연도", name: year, widget: string, required: false }
+      - { label: "정렬 기준 날짜 (최신이 위로)", name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "대표 사진 (비우면 첫 번째 사진)", name: cover, widget: image, required: false }
+      - { label: "설명 (한국어)", name: description_ko, widget: text, required: false }
+      - { label: "설명 (영어)", name: description_en, widget: text, required: false }
+      - label: "사진"
+        name: photos
+        widget: list
+        label_singular: 사진
+        summary: "{{fields.caption_ko}}"
+        fields:
+          - { label: "사진", name: image, widget: image }
+          - { label: "캡션 (한국어)", name: caption_ko, widget: string, required: false }
+          - { label: "캡션 (영어)", name: caption_en, widget: string, required: false }
+      - { label: "숨기기 (체크하면 사이트에 안 보여요)", name: draft, widget: boolean, default: false, required: false }
+
+  - name: settings
+    label: 사이트 설정
+    editor: { preview: false }
+    files:
+      - file: content/settings.json
+        name: settings
+        label: 사이트 설정
+        fields:
+          - { label: "사이트 이름 (왼쪽 위 로고)", name: site_title, widget: string }
+          - { label: "첫 화면 문구 (한국어)", name: tagline_ko, widget: string, required: false }
+          - { label: "첫 화면 문구 (영어)", name: tagline_en, widget: string, required: false }
+          - label: "첫 화면 슬라이드 사진 (비우면 시리즈 대표 사진)"
+            name: hero
+            widget: list
+            required: false
+            label_singular: 슬라이드
+            fields:
+              - { label: "사진", name: image, widget: image }
+              - { label: "캡션 (한국어)", name: caption_ko, widget: string, required: false }
+              - { label: "캡션 (영어)", name: caption_en, widget: string, required: false }
+          - { label: "소개 사진", name: about_image, widget: image, required: false }
+          - { label: "소개 글 (한국어)", name: about_ko, widget: text, required: false }
+          - { label: "소개 글 (영어)", name: about_en, widget: text, required: false }
+          - { label: "연락 페이지 안내 글 (한국어)", name: contact_intro_ko, widget: text, required: false }
+          - { label: "연락 페이지 안내 글 (영어)", name: contact_intro_en, widget: text, required: false }
+          - { label: "이메일", name: email, widget: string, required: false }
+          - { label: "인스타그램 아이디", name: instagram, widget: string, required: false }

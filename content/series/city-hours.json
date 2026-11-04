@@ -1,0 +1,39 @@
+{
+  "title_ko": "도시의 시간",
+  "title_en": "City Hours",
+  "location_ko": "서울",
+  "location_en": "Seoul",
+  "year": "2025",
+  "date": "2025-11-15",
+  "cover": "https://picsum.photos/id/1067/2000/1333",
+  "description_ko": "샘플 시리즈예요.",
+  "description_en": "A sample series.",
+  "photos": [
+    {
+      "image": "https://picsum.photos/id/1067/2000/1333",
+      "caption_ko": "",
+      "caption_en": ""
+    },
+    {
+      "image": "https://picsum.photos/id/1031/1333/2000",
+      "caption_ko": "",
+      "caption_en": ""
+    },
+    {
+      "image": "https://picsum.photos/id/1029/2000/1333",
+      "caption_ko": "",
+      "caption_en": ""
+    },
+    {
+      "image": "https://picsum.photos/id/1048/1333/2000",
+      "caption_ko": "",
+      "caption_en": ""
+    },
+    {
+      "image": "https://picsum.photos/id/1056/2000/1333",
+      "caption_ko": "",
+      "caption_en": ""
+    }
+  ],
+  "draft": false
+}

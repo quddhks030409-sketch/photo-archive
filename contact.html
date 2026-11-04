@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact — Kang ByeongWan</title>
+  <meta name="description" content="Photography archive of Kang ByeongWan">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body data-page="contact">
+  <header class="site-header" id="site-header"></header>
+  <main id="main">
+    <section class="section"><div class="wrap split">
+      <div>
+        <h1 class="page-title" data-i18n="contact"></h1>
+        <div class="prose" id="contact-intro"></div>
+      </div>
+      <form class="form" id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="contact">
+        <p hidden><label>Leave empty <input name="bot-field"></label></p>
+        <label><span data-i18n="name"></span><input name="name" required autocomplete="name"></label>
+        <label><span data-i18n="email"></span><input name="email" type="email" required autocomplete="email"></label>
+        <label><span data-i18n="subject"></span><input name="subject"></label>
+        <label><span data-i18n="message"></span><textarea name="message" required></textarea></label>
+        <button class="submit" type="submit" data-i18n="send"></button>
+        <p class="form-status" id="form-status" aria-live="polite"></p>
+      </form>
+    </div></section>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <script src="/assets/app.js"></script>
+</body>
+</html>
