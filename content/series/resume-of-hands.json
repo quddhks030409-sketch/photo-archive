@@ -35,7 +35,8 @@
           "caption_ko": "분식집, 31년",
           "caption_en": "Snack Bar, 31 Years"
         }
-      ]
+      ],
+      "layout": "feature"
     },
     {
       "title_ko": "어머니, 24년",
@@ -65,10 +66,12 @@
           "caption_ko": "어머니, 24년",
           "caption_en": "Mother, 24 Years"
         }
-      ]
+      ],
+      "layout": "feature"
     }
   ],
   "description_ko": "사람이 지나온 시간은 손에 남는다.\n\n아버지가 손을 크게 다쳤을 때, 프로필 사진에 손 사진과 한 문장을 남기셨다. \"불쌍한 내 손들아 미안해.\" 그 문장은 손이 한 사람의 삶을 가장 가까이에서 겪어 왔다는 사실을 떠올리게 했다.\n\n〈손의 이력〉은 가장 가까운 어머니의 손에서 출발해, 31년째 이어 온 분식집 사장님의 손으로 나아가는 연작이다. 얼굴이 아닌 손을 가장 크게 놓고, 그 아래에 손이 하는 일을 조용히 덧붙인다. 제목은 이력서의 한 줄처럼 대상과 햇수로만 짓는다. 엄마, 24년. 분식집, 31년.",
+  "layout": "stack",
   "title_ko": "손의 이력",
   "description_en": "The time a person has lived stays in their hands.\n\nWhen my father badly injured his hand, he set his profile picture to a photograph of it, with a single line: “Sorry, my poor hands.” The sentence reminded me that our hands live closest to our lives.\n\nResume of Hands begins with my mother’s hands and extends to those of a snack bar owner whose counter has stayed open for 31 years. In each work, the hand is the largest element, with the work it does set quietly beneath. Every title reads like a line from a résumé: a subject and a number of years. Mother, 24 Years. Snack Bar, 31 Years.",
   "location_ko": "대한민국",
