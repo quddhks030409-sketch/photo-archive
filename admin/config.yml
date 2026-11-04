@@ -45,12 +45,36 @@ collections:
       - label: "사진"
         name: photos
         widget: list
+        required: false
         label_singular: 사진
         summary: "{{fields.caption_ko}}"
         fields:
           - { label: "사진", name: image, widget: image }
           - { label: "캡션 (한국어)", name: caption_ko, widget: string, required: false }
           - { label: "캡션 (영어)", name: caption_en, widget: string, required: false }
+      - label: "소주제 (시리즈 안을 나누고 싶을 때)"
+        name: chapters
+        widget: list
+        required: false
+        label_singular: 소주제
+        summary: "{{fields.title_ko}}"
+        hint: "예: 손의 이력 안에 '어머니, 24년', '목수, 40년'처럼 나눌 수 있어요. 위의 '사진' 칸은 소주제 없이 맨 앞에 나와요."
+        fields:
+          - { label: "소주제 제목 (한국어)", name: title_ko, widget: string }
+          - { label: "소주제 제목 (영어)", name: title_en, widget: string, required: false }
+          - { label: "부제 (한국어) — 예: 서울, 2026년 10월", name: note_ko, widget: string, required: false }
+          - { label: "부제 (영어) — 예: Seoul, October 2026", name: note_en, widget: string, required: false }
+          - { label: "설명 (한국어)", name: description_ko, widget: text, required: false }
+          - { label: "설명 (영어)", name: description_en, widget: text, required: false }
+          - label: "사진"
+            name: photos
+            widget: list
+            label_singular: 사진
+            summary: "{{fields.caption_ko}}"
+            fields:
+              - { label: "사진", name: image, widget: image }
+              - { label: "캡션 (한국어)", name: caption_ko, widget: string, required: false }
+              - { label: "캡션 (영어)", name: caption_en, widget: string, required: false }
       - { label: "숨기기 (체크하면 사이트에 안 보여요)", name: draft, widget: boolean, default: false, required: false }
 
   - name: settings
