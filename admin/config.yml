@@ -144,4 +144,5 @@ collections:
           - { label: "연락 페이지 안내 글 (한국어)", name: contact_intro_ko, widget: text, required: false }
           - { label: "연락 페이지 안내 글 (영어)", name: contact_intro_en, widget: text, required: false }
           - { label: "이메일", name: email, widget: string, required: false }
+          - { label: "연락 양식 키 (Web3Forms Access Key)", name: form_key, widget: string, required: false, hint: "web3forms.com 에서 이메일(wanddi@naver.com)을 넣으면 받는 키를 붙여 넣어요. 비워 두면 보내기 버튼이 메일 앱을 열어요." }
           - { label: "인스타그램 아이디", name: instagram, widget: string, required: false }

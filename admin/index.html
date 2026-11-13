@@ -7,6 +7,12 @@
   <title>사진 관리</title>
 </head>
 <body>
+  <script>window.CMS_MANUAL_INIT = true;</script>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    // GitHub 로그인은 이 사이트의 /api/auth 로 해요 (Cloudflare Pages Functions).
+    // 나머지 설정은 config.yml 에서 읽어요.
+    CMS.init({ config: { backend: { base_url: location.origin, auth_endpoint: 'api/auth' } } });
+  </script>
 </body>
 </html>

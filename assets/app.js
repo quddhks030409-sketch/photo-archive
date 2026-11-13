@@ -39,18 +39,22 @@
   const pick = (o, f) => (o ? o[`${f}_${lang}`] || o[`${f}_${lang === 'ko' ? 'en' : 'ko'}`] || '' : '');
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const paras = (s) => esc(s).split(/\n\s*\n/).filter((p) => p.trim()).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-  // 올린 원본은 그대로 두고, 화면 크기에 맞게 Netlify 이미지 변환(/.netlify/images)으로 줄여서 보여준다.
-  // 내 컴퓨터에서 미리 볼 때와 외부 주소 사진은 원본을 그대로 쓴다.
-  const useCdn = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-  const canResize = (src) => useCdn && /^\/[^/]/.test(src || '');
-  const cdn = (src, w) => (canResize(src) ? `/.netlify/images?url=${encodeURIComponent(src)}&w=${w}&q=82` : src);
+  // 올린 사진은 배포할 때 build.js 가 미리 여러 크기로 줄여 둬요.
+  // /images/uploads/a.jpg → /img/800/uploads/a.jpg (가장 큰 2400px 는 원래 주소 그대로)
+  const WIDTHS = [400, 800, 1200, 1600, 2400];
+  const canResize = (src) => /^\/images\/[^?#]+\.(jpe?g|png|webp|avif|tiff?)$/i.test(src || '');
+  const cdn = (src, w) => {
+    if (!canResize(src)) return src;
+    const fit = WIDTHS.find((x) => x >= w) || 2400;
+    return fit >= 2400 ? src : `/img/${fit}/${src.slice('/images/'.length)}`;
+  };
   const SIZES = {
-    card: { w: 1200, set: [600, 900, 1200], sizes: '(max-width: 760px) 100vw, 33vw' },
-    photo: { w: 2400, set: [1000, 1600, 2400], sizes: '(max-width: 1240px) 100vw, 1200px' },
+    card: { w: 1200, set: [800, 1200], sizes: '(max-width: 760px) 100vw, 33vw' },
+    photo: { w: 2400, set: [800, 1200, 1600, 2400], sizes: '(max-width: 1240px) 100vw, 1200px' },
     grid: { w: 800, set: [400, 800, 1200], sizes: '(max-width: 600px) 50vw, 33vw' },
-    portrait: { w: 1200, set: [600, 1200], sizes: '(max-width: 860px) 100vw, 45vw' },
-    hero: { w: 2400, set: [1200, 1800, 2400, 3000], sizes: '100vw' },
-    side: { w: 1800, set: [800, 1200, 1800], sizes: '(max-width: 860px) 100vw, 60vw' },
+    portrait: { w: 1200, set: [800, 1200], sizes: '(max-width: 860px) 100vw, 45vw' },
+    hero: { w: 2400, set: [1200, 1600, 2400], sizes: '100vw' },
+    side: { w: 1600, set: [800, 1200, 1600], sizes: '(max-width: 860px) 100vw, 60vw' },
     scroll: { w: 1600, set: [800, 1200, 1600], sizes: '(max-width: 760px) 85vw, 55vw' },
   };
   const srcAttrs = (src, kind) => {
@@ -371,15 +375,37 @@
       const status = $('form-status');
       btn.disabled = true;
       status.textContent = t('sending');
+      const data = Object.fromEntries(new FormData(form));
       try {
-        const res = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(new FormData(form)).toString(),
-        });
-        if (!res.ok) throw new Error(res.status);
-        form.reset();
-        status.textContent = t('sent');
+        if (data['bot-field']) throw new Error('bot'); // 자동 스팸은 보내지 않아요
+        if (settings.form_key) {
+          // Web3Forms 가 사이트 설정의 이메일로 메시지를 보내 줘요 (무료, 한 달 250건)
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              access_key: settings.form_key,
+              subject: `[홈페이지 문의] ${data.subject || data.name}`,
+              from_name: data.name,
+              name: data.name,
+              email: data.email,
+              replyto: data.email,
+              title: data.subject || '',
+              message: data.message,
+            }),
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok || !json.success) throw new Error(json.message || res.status);
+          form.reset();
+          status.textContent = t('sent');
+        } else if (settings.email) {
+          // 키가 없으면 방문자의 메일 앱을 열어 바로 보내게 해요
+          const body = `${data.message}\n\n— ${data.name} (${data.email})`;
+          location.href = `mailto:${settings.email}?subject=${encodeURIComponent(data.subject || `Contact from ${data.name}`)}&body=${encodeURIComponent(body)}`;
+          status.textContent = '';
+        } else {
+          throw new Error('no destination');
+        }
       } catch (err) {
         status.textContent = t('failed');
       } finally {
