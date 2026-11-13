@@ -2,10 +2,11 @@
 
 광고 없는 무료 사진 포트폴리오 사이트예요. 홈페이지 주소 뒤에 `/admin`을 붙여 들어가면 브라우저에서 바로 사진을 올리거나 지울 수 있어요.
 
-- **호스팅:** Netlify 무료 요금제
+- **호스팅:** Cloudflare Pages 무료 요금제 (방문자 트래픽 무제한, 한 달 배포 500번, 한도를 넘어도 사이트는 멈추지 않아요)
 - **사진·글 저장:** GitHub 저장소 (무료)
-- **관리자 페이지:** Decap CMS (`/admin`)
-- **연락 양식:** Netlify Forms (무료 요금제는 한 달에 100건까지)
+- **관리자 페이지:** Decap CMS (`/admin`), GitHub 로그인은 `functions/api/` 가 처리해요
+- **연락 양식:** Web3Forms (무료, 한 달 250건). 키가 없으면 보내기 버튼이 메일 앱을 열어요
+- **사진 크기:** 배포할 때 `build.js` 가 사진을 여러 크기로 미리 줄여서 `dist` 폴더에 넣어요. 원본은 GitHub에 그대로 있어요
 
 ## 페이지 구성
 
@@ -21,34 +22,30 @@
 
 ---
 
-## 처음 한 번만: 인터넷에 올리기 (약 20분)
+## 처음 한 번만: Cloudflare Pages에 올리기
 
-### 1. GitHub에 파일 올리기
-1. https://github.com 에 가입해요.
-2. 오른쪽 위 **+ → New repository**를 눌러요. 이름은 `photo-archive`로 하고, 공개 범위는 **Public**으로 둔 채 만들어요.
-3. **uploading an existing file**을 눌러 이 폴더 안의 모든 파일과 폴더를 끌어다 놓고 **Commit changes**를 눌러요.
-   - `.claude` 폴더는 올리지 않아도 돼요.
-4. 올리기 전에 `admin/config.yml` 파일의 `repo:` 줄을 본인 아이디로 바꿔요.
-   예: `repo: kangbyeongwan/photo-archive`
+### 1. Cloudflare Pages 프로젝트 만들기
+1. https://dash.cloudflare.com 에 가입하고 로그인해요.
+2. **Workers & Pages → Create → Pages → Connect to Git**을 누르고 GitHub를 연결해 `photo-archive` 저장소를 골라요.
+3. 빌드 설정:
+   - Project name: `kangbyeongwan` (주소가 `kangbyeongwan.pages.dev` 가 돼요)
+   - Framework preset: `None`
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+4. **Save and Deploy**를 눌러요.
 
-### 2. Netlify로 배포하기
-1. https://app.netlify.com 에서 **GitHub 계정으로 가입**해요.
-2. **Add new project → Import an existing project → GitHub**를 누르고 `photo-archive`를 골라요.
-3. 설정은 그대로 두고 **Deploy**를 눌러요. 1분쯤 지나면 `https://jolly-otter-12ab34.netlify.app` 같은 임시 주소가 생겨요.
-4. **Project configuration → General → Change project name**에서 이름을 `kangbyeongwan`으로 바꾸면 주소가 `https://kangbyeongwan.netlify.app`이 돼요. 이미 누가 쓰고 있으면 `kangbyeongwan-photo`처럼 바꿔 보세요.
+### 2. 관리자 로그인 연결하기 (GitHub OAuth)
+1. GitHub **Settings → Developer settings → OAuth Apps**에서 OAuth 앱을 열어요 (없으면 New OAuth App).
+   - Homepage URL: `https://kangbyeongwan.pages.dev`
+   - Authorization callback URL: `https://kangbyeongwan.pages.dev/api/callback`
+2. Cloudflare 프로젝트 **Settings → Variables and Secrets**에 두 값을 넣어요.
+   - `GITHUB_CLIENT_ID`: Client ID (Type: Text)
+   - `GITHUB_CLIENT_SECRET`: Client secret (Type: **Secret**)
+3. **Deployments**에서 가장 최근 배포의 **⋯ → Retry deployment**를 눌러 다시 배포해요.
 
-### 3. 관리자 로그인 연결하기 (GitHub OAuth)
-1. GitHub에서 **Settings → Developer settings → OAuth Apps → New OAuth App**을 눌러요.
-   - Application name: 아무 이름 (예: Photo Admin)
-   - Homepage URL: 내 사이트 주소 (예: `https://kangbyeongwan.netlify.app`)
-   - Authorization callback URL: `https://api.netlify.com/auth/done`
-2. 만든 뒤 **Client ID**를 복사하고, **Generate a new client secret**으로 비밀 키를 만들어 복사해요.
-3. Netlify에서 **Project configuration → Access & security → OAuth → Install provider**를 누르고 **GitHub**를 고른 뒤 두 값을 붙여 넣어요.
-
-### 4. 연락 양식 켜기
-1. Netlify에서 **Project configuration → Forms**로 가서 **Enable form detection**을 눌러요.
-2. **Deploys → Trigger deploy → Deploy project**로 한 번 더 배포해요.
-3. **Forms → Form notifications**에서 새 메시지가 왔을 때 받을 이메일 주소를 등록해요.
+### 3. 연락 양식 켜기
+1. https://web3forms.com 에서 받을 이메일 주소를 넣고 Access Key를 받아요.
+2. 관리자 **사이트 설정 → 연락 양식 키**에 붙여 넣고 저장해요.
 
 ---
 
@@ -56,7 +53,7 @@
 
 1. `https://내사이트주소/admin` 에 들어가서 **GitHub로 로그인**을 눌러요.
 2. **시리즈 → 새 시리즈**를 눌러 제목, 장소, 날짜를 적고, **사진** 칸에서 **추가**를 눌러 사진을 올려요.
-3. **저장(Publish)**을 누르면 1분쯤 뒤에 사이트에 반영돼요.
+3. **저장(Publish)**을 누르면 1~2분 뒤에 사이트에 반영돼요. 저장할 때마다 배포가 한 번 일어나니, 사진을 여러 장 올릴 때는 다 올린 뒤 한 번만 저장하는 게 좋아요.
 
 - **사진 지우기:** 시리즈를 열고 사진 항목 옆의 휴지통을 누른 뒤 저장해요.
 - **시리즈 지우기:** 시리즈를 열고 오른쪽 위 메뉴에서 **삭제**를 눌러요.
@@ -72,11 +69,11 @@ GitHub 저장소는 전체 1GB 안쪽으로 쓰는 게 좋아요. 업로드하�
 ---
 
 ## 나중에 할 수 있는 것
-- **나만의 도메인** (예: `kangbyeongwan.com`): 도메인만 1년에 1~2만 원 정도로 사서 Netlify **Domain management**에 연결하면 돼요.
+- **나만의 도메인** (예: `kangbyeongwan.com`): 도메인만 1년에 1~2만 원 정도로 사서 Cloudflare Pages 프로젝트의 **Custom domains**에 연결하면 돼요.
 - **샵 페이지:** 판매할 게 생기면 페이지를 하나 추가하면 돼요.
 
 ## 내 컴퓨터에서 미리 보기
 ```bash
-node build.js && python3 -m http.server 8765
+npm install && npm run build && cd dist && python3 -m http.server 8765
 ```
-그다음 브라우저에서 http://localhost:8765 를 열어요. 연락 양식 전송과 관리자 로그인은 Netlify에 올린 뒤에만 동작해요.
+그다음 브라우저에서 http://localhost:8765 를 열어요. 관리자 로그인은 Cloudflare에 올린 뒤에만 동작해요.

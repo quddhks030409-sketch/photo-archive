@@ -1,0 +1,13 @@
+{
+  "name": "kangbyeongwan-photo-archive",
+  "private": true,
+  "scripts": {
+    "build": "node build.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "sharp": "^0.34.0"
+  }
+}
